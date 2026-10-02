@@ -1,5 +1,7 @@
 import type { EpistemeAgentEvent } from './schema/agent-event';
 import mockTrace from './mock/scientific-agent-trace.json';
+import { generateROCrate } from './schema/ro-crate';
+import { OPENTRONS_PROTOCOL_CODE } from './mock/opentrons-protocol';
 
 // Configuration & Layout constants
 const NODE_WIDTH = 130;
@@ -82,7 +84,55 @@ class EpistemeCanvasApp {
       this.togglePlay();
     });
 
+    this.setupTabsAndPanels();
     this.render();
+  }
+
+  private setupTabsAndPanels() {
+    const tabs = ['tabBtnInspector', 'tabBtnProtocol', 'tabBtnRocrate'];
+    tabs.forEach((tabId) => {
+      const btn = document.getElementById(tabId);
+      btn?.addEventListener('click', () => {
+        const targetPanelId = btn.getAttribute('data-tab');
+        document.querySelectorAll('.tab-btn').forEach((b) => b.classList.remove('active'));
+        document.querySelectorAll('.panel').forEach((p) => p.classList.remove('active'));
+        btn.classList.add('active');
+        if (targetPanelId) {
+          document.getElementById(targetPanelId)?.classList.add('active');
+        }
+      });
+    });
+
+    // Populate Opentrons Code View
+    const codeElem = document.getElementById('protocolCodeView');
+    if (codeElem) {
+      codeElem.textContent = OPENTRONS_PROTOCOL_CODE.trim();
+    }
+    document.getElementById('btnCopyProtocol')?.addEventListener('click', () => {
+      navigator.clipboard.writeText(OPENTRONS_PROTOCOL_CODE.trim());
+      alert('Opentrons OT-2 Python protocol copied to clipboard!');
+    });
+
+    // Populate ELIXIR RO-Crate View
+    const rocrate = generateROCrate(this.events[0].trace_id, this.events.length);
+    const rocrateJson = JSON.stringify(rocrate, null, 2);
+    const rocrateElem = document.getElementById('rocrateView');
+    if (rocrateElem) {
+      rocrateElem.textContent = rocrateJson;
+    }
+    document.getElementById('btnDownloadCrate')?.addEventListener('click', () => {
+      this.downloadFile('ro-crate-metadata.json', rocrateJson, 'application/ld+json');
+    });
+  }
+
+  private downloadFile(filename: string, content: string, mimeType: string) {
+    const blob = new Blob([content], { type: mimeType });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    a.click();
+    URL.revokeObjectURL(url);
   }
 
   private togglePlay() {
@@ -234,6 +284,11 @@ class EpistemeCanvasApp {
 
       group.addEventListener('click', () => {
         this.selectedEventId = n.event.event_id;
+        // Also ensure inspector tab is active
+        const inspectorTabBtn = document.getElementById('tabBtnInspector');
+        if (inspectorTabBtn && !inspectorTabBtn.classList.contains('active')) {
+          inspectorTabBtn.click();
+        }
         this.render();
       });
 
@@ -311,6 +366,7 @@ class EpistemeCanvasApp {
         <button class="btn-action" id="btnFork">🔀 Fork New Trajectory from Step</button>
         <button class="btn-action" id="btnSteer" style="background: #21262d; border: 1px solid var(--border); color: #e6edf3;">✋ Inject Steering Constraint</button>
         <button class="btn-action" id="btnExport" style="background: transparent; border: 1px solid var(--border); color: #8b949e; font-size: 0.78rem;">Export DuckDB Event Trace</button>
+        <button class="btn-action" id="btnExportCrate" style="background: rgba(163, 113, 247, 0.15); border: 1px solid #8957e5; color: #d2a8ff; font-size: 0.78rem; margin-top: 4px;">📦 Export ELIXIR RO-Crate (JSON-LD)</button>
       </div>
     `;
 
@@ -324,12 +380,11 @@ class EpistemeCanvasApp {
       }
     });
     document.getElementById('btnExport')?.addEventListener('click', () => {
-      const blob = new Blob([JSON.stringify(this.events, null, 2)], { type: 'application/json' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `episteme-trace-${selected.trace_id}.json`;
-      a.click();
+      this.downloadFile(`episteme-trace-${selected.trace_id}.json`, JSON.stringify(this.events, null, 2), 'application/json');
+    });
+    document.getElementById('btnExportCrate')?.addEventListener('click', () => {
+      const rocrate = generateROCrate(this.events[0].trace_id, this.events.length);
+      this.downloadFile('ro-crate-metadata.json', JSON.stringify(rocrate, null, 2), 'application/ld+json');
     });
   }
 }
