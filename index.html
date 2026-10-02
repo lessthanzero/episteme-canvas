@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Episteme Canvas — Human-Agent Steering & Telemetry</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #090b0e;
+      --canvas-bg: #0d1117;
+      --card-bg: #161b22;
+      --border: #30363d;
+      --text: #e6edf3;
+      --text-muted: #8b949e;
+      --accent: #2f81f7;
+      --gate-pass: #238636;
+      --gate-warn: #d29922;
+      --intervention: #a371f7;
+      --font-sans: 'Inter', -apple-system, sans-serif;
+      --font-mono: 'IBM Plex Mono', monospace;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--font-sans);
+      display: flex;
+      height: 100vh;
+      overflow: hidden;
+    }
+    #sidebar {
+      width: 380px;
+      border-right: 1px solid var(--border);
+      background: var(--card-bg);
+      display: flex;
+      flex-direction: column;
+      z-index: 10;
+    }
+    .sidebar-header {
+      padding: 20px;
+      border-bottom: 1px solid var(--border);
+    }
+    .badge {
+      display: inline-block;
+      padding: 3px 8px;
+      border-radius: 6px;
+      font-size: 0.72rem;
+      font-family: var(--font-mono);
+      background: rgba(47, 129, 247, 0.15);
+      color: #58a6ff;
+      border: 1px solid rgba(47, 129, 247, 0.3);
+      margin-bottom: 8px;
+    }
+    h1 { font-size: 1.15rem; font-weight: 600; color: #f0f6fc; }
+    .sidebar-desc { font-size: 0.82rem; color: var(--text-muted); margin-top: 4px; }
+    .node-inspector {
+      flex: 1;
+      padding: 20px;
+      overflow-y: auto;
+    }
+    .inspector-placeholder {
+      color: var(--text-muted);
+      font-size: 0.88rem;
+      text-align: center;
+      margin-top: 60px;
+    }
+    .inspector-title { font-size: 1rem; font-weight: 600; margin-bottom: 8px; }
+    .inspector-meta { font-family: var(--font-mono); font-size: 0.75rem; color: var(--text-muted); margin-bottom: 16px; }
+    .inspector-content { font-size: 0.88rem; line-height: 1.6; color: #c9d1d9; margin-bottom: 16px; }
+    .inspector-box {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 12px;
+      font-family: var(--font-mono);
+      font-size: 0.78rem;
+      color: #7ee787;
+      margin-bottom: 16px;
+      white-space: pre-wrap;
+    }
+    .btn-action {
+      display: block;
+      width: 100%;
+      padding: 8px 12px;
+      border-radius: 6px;
+      background: var(--accent);
+      color: white;
+      border: none;
+      font-size: 0.85rem;
+      font-weight: 500;
+      cursor: pointer;
+      margin-bottom: 8px;
+    }
+    .btn-action:hover { background: #388bfd; }
+    
+    #canvas-container {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+    }
+    #canvas-viewport {
+      flex: 1;
+      background: radial-gradient(circle, #161b22 1px, transparent 1px) 0 0 / 24px 24px var(--canvas-bg);
+      position: relative;
+      overflow: auto;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    svg.dag-canvas {
+      width: 1000px;
+      height: 600px;
+    }
+    .dag-node {
+      cursor: pointer;
+      transition: transform 0.15s ease;
+    }
+    .dag-node:hover rect {
+      stroke: var(--accent);
+      stroke-width: 2px;
+    }
+    .dag-node rect {
+      fill: #161b22;
+      stroke: var(--border);
+      stroke-width: 1.5px;
+      rx: 8;
+    }
+    .dag-node.active rect {
+      stroke: var(--accent);
+      stroke-width: 2.5px;
+      fill: #1c2128;
+    }
+    .dag-node.gate rect { stroke: var(--gate-pass); }
+    .dag-node.human rect { stroke: var(--intervention); }
+    .dag-link {
+      fill: none;
+      stroke: #30363d;
+      stroke-width: 2px;
+      stroke-dasharray: 4;
+      animation: dash 30s linear infinite;
+    }
+    @keyframes dash { to { stroke-dashoffset: -1000; } }
+    
+    #scrubber-bar {
+      height: 64px;
+      background: var(--card-bg);
+      border-top: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      padding: 0 24px;
+      gap: 16px;
+    }
+    .scrub-btn {
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--text);
+      width: 36px;
+      height: 36px;
+      border-radius: 6px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .scrub-btn:hover { background: #21262d; border-color: var(--accent); }
+    .timeline-slider {
+      flex: 1;
+      accent-color: var(--accent);
+    }
+    .timeline-label {
+      font-family: var(--font-mono);
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      min-width: 100px;
+      text-align: right;
+    }
+  </style>
+</head>
+<body>
+
+  <aside id="sidebar">
+    <div class="sidebar-header">
+      <div class="badge">Episteme Engine v0.1.0</div>
+      <h1>Human-Agent Steering Canvas</h1>
+      <div class="sidebar-desc">Tactile multi-agent trajectory inspection & epistemic bounds</div>
+    </div>
+
+    <div class="node-inspector" id="inspector">
+      <div class="inspector-placeholder">Click any step node in the decision canvas to inspect payload, tool arguments, or inject runtime constraints.</div>
+    </div>
+  </aside>
+
+  <main id="canvas-container">
+    <div id="canvas-viewport">
+      <svg class="dag-canvas" id="dagSvg" viewBox="0 0 1000 600"></svg>
+    </div>
+
+    <div id="scrubber-bar">
+      <button class="scrub-btn" id="playBtn" title="Play Trajectory">▶</button>
+      <input type="range" class="timeline-slider" id="scrubber" min="0" max="6" value="6" step="1">
+      <div class="timeline-label" id="timelineStep">Step 7 of 7</div>
+    </div>
+  </main>
+
+  <script type="module" src="./src/main.ts"></script>
+</body>
+</html>

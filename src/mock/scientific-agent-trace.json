@@ -1,0 +1,103 @@
+[
+  {
+    "event_id": "e001",
+    "trace_id": "trace-crystallization-01",
+    "parent_event_id": null,
+    "timestamp": "2026-10-02T15:20:00Z",
+    "agent_id": "protocol-designer",
+    "type": "hypothesis",
+    "payload": {
+      "title": "Hypothesis: PEG-3350 / Ammonium Sulfate Crystallization Matrix",
+      "content": "Propose testing 24-well hanging-drop vapor diffusion matrix across pH 6.5–7.5 with 0.2M Ammonium Sulfate.",
+      "confidence_score": 0.88
+    }
+  },
+  {
+    "event_id": "e002",
+    "trace_id": "trace-crystallization-01",
+    "parent_event_id": "e001",
+    "timestamp": "2026-10-02T15:20:05Z",
+    "agent_id": "liquid-handler-controller",
+    "type": "tool_call",
+    "payload": {
+      "title": "Execute OT-2 Dispense Protocol",
+      "tool_name": "opentrons_liquid_handler",
+      "tool_args": {
+        "pipette": "p300_multi",
+        "source_plate": "reagent_reservoir_1",
+        "dest_plate": "crystallization_plate_24well",
+        "volume_ul": 15.0,
+        "mix_cycles": 3
+      }
+    }
+  },
+  {
+    "event_id": "e003",
+    "trace_id": "trace-crystallization-01",
+    "parent_event_id": "e002",
+    "timestamp": "2026-10-02T15:20:12Z",
+    "agent_id": "plate-imager",
+    "type": "observation",
+    "payload": {
+      "title": "Plate Imaging Observation: Micro-Crystal Spherulites Detected",
+      "content": "UV fluorescence imaging confirms protein crystal nucleation in Well B3 (pH 7.0, 20% w/v PEG 3350).",
+      "confidence_score": 0.94
+    }
+  },
+  {
+    "event_id": "e004",
+    "trace_id": "trace-crystallization-01",
+    "parent_event_id": "e003",
+    "timestamp": "2026-10-02T15:20:20Z",
+    "agent_id": "epistemic-referee",
+    "type": "epistemic_gate",
+    "payload": {
+      "title": "Epistemic Gate: Negative Control Foil & Salinity Null Test",
+      "content": "Evaluating crystallization signal against blinded water/buffer foils to reject amorphous salt precipitation.",
+      "epistemic_bounds": {
+        "p_value": 0.00034,
+        "fwer_adjusted_alpha": 0.0012,
+        "blinded_foil_passed": true,
+        "unicity_satisfied": true,
+        "notes": "Salt-only decoy rejected by referee; genuine protein lattice diffraction pattern confirmed."
+      }
+    }
+  },
+  {
+    "event_id": "e005",
+    "trace_id": "trace-crystallization-01",
+    "parent_event_id": "e004",
+    "timestamp": "2026-10-02T15:21:00Z",
+    "agent_id": "human-supervisor",
+    "type": "human_intervention",
+    "payload": {
+      "title": "Human Steering: Optimize Crystal Size via Fine pH Gradient",
+      "content": "Operator intervened to narrow optimization grid between pH 6.9 and 7.3 with 0.05 increments.",
+      "confidence_score": 1.0
+    }
+  },
+  {
+    "event_id": "e006",
+    "trace_id": "trace-crystallization-01",
+    "parent_event_id": "e005",
+    "timestamp": "2026-10-02T15:21:15Z",
+    "agent_id": "protocol-designer",
+    "type": "branch_fork",
+    "payload": {
+      "title": "Trajectory Fork: Seeding Optimization Branch",
+      "content": "Spawned micro-seeding protocol trajectory exploring 1:100 seed stock dilution."
+    }
+  },
+  {
+    "event_id": "e007",
+    "trace_id": "trace-crystallization-01",
+    "parent_event_id": "e006",
+    "timestamp": "2026-10-02T15:21:30Z",
+    "agent_id": "crystallographer-agent",
+    "type": "resolution",
+    "payload": {
+      "title": "Protocol Verified & Exported for Laboratory Execution",
+      "content": "Reproducible OT-2 Python protocol generated with hash sha256:7f4a... Ready for wet-lab execution."
+    }
+  }
+]
