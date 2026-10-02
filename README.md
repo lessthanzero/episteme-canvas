@@ -6,18 +6,43 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.5-3178c6.svg)](https://www.typescriptlang.org/)
 [![Vite](https://img.shields.io/badge/Vite-5.4-646cff.svg)](https://vitejs.dev/)
+[![Live Demo](https://img.shields.io/badge/Live%20Demo-GitHub%20Pages-brightgreen.svg)](https://lessthanzero.github.io/episteme-canvas/)
 
 ---
 
-## Overview
+## 🚀 Live Interactive Demonstrator
 
-Modern multi-agent architectures (AutoGPT, LangGraph, CrewAI) operate largely as black-box execution loops or unstructured log outputs. When applied to high-stakes domains—such as laboratory automation, pharmaceutical wet-lab protocols, algorithmic synthesis, or formal verification—operators lack:
+👉 **[https://lessthanzero.github.io/episteme-canvas/](https://lessthanzero.github.io/episteme-canvas/)**
 
-1. **Tactile Trajectory Inspection**: The ability to inspect branching decision Directed Acyclic Graphs (DAGs) in real time.
-2. **Epistemic Verification Bounds**: Statistical guarantees ($p$-values under Family-Wise Error Rate control, blinded decoy foils, unicity distance metrics) that prevent hallucinated or spurious execution.
-3. **Mid-Flight Steerability & Rewind**: The ability to pause, inject human constraints, and branch alternative trajectories without re-running entire pipelines.
+---
 
-**Episteme Canvas** provides a framework-agnostic frontend canvas and telemetry protocol that bridges autonomous multi-agent reasoning with senior human engineering oversight.
+## 🏆 Hackathon & Reviewer Quickstart Guide
+
+For hackathon judges, technical evaluators, and peer reviewers evaluating Episteme:
+
+### 1. Interactive Walkthrough (60-Second Test Drive)
+1. **Explore the Decision DAG**: Click on any node in the SVG canvas. The active state highlights with animated bezier connections.
+2. **Inspect the Epistemic Gate (🛡️ Step 4)**: Click on the green shielded node to view the epistemic referee bounds:
+   - $p$-value / null hypothesis rejection ($p = 0.00034$)
+   - Family-Wise Error Rate (FWER) adjusted $\alpha$ threshold ($0.0012$)
+   - Blinded solvent decoy validation ($0/1000$ foils failed)
+   - Shannon unicity distance check ($L > U_0$)
+3. **Test Time-Travel Scrubbing**: Drag the scrubber slider at the bottom of the canvas or press **▶ Play** to replay the multi-agent trajectory sequentially. Unreached future states are dynamically ghosted.
+4. **Inject Steering Constraints**: Click **"Inject Steering Constraint"** in the sidebar to simulate runtime human intervention (e.g., narrowing optimization gradients) without re-running pipelines from scratch.
+5. **View Validated Robotics Code**: Switch to the **`Opentrons OT-2`** tab to inspect the synthesised Python protocol (`opentrons.protocol_api` 2.14) with interleaved negative control foils.
+6. **Download FAIR Research Object**: Switch to the **`ELIXIR RO-Crate`** tab and click **"Download Crate"** to receive the complete, compliant `ro-crate-metadata.json` research provenance manifest.
+
+### 2. Core Problem Solved
+Modern multi-agent architectures (AutoGPT, LangGraph, CrewAI) operate largely as black-box execution loops or terminal logs. In high-stakes applications—such as laboratory automation, algorithmic synthesis, or formal verification—operators cannot afford hallucinated actions:
+- In wet labs, a hallucinated pipetting step breaks physical robotic hardware or destroys expensive biological reagents.
+- Without negative control foils, agents misinterpret false-positive salt crystallization as genuine protein crystals (the scientific replication crisis).
+- Episteme provides the missing **Epistemic Telemetry & Human Steering** layer.
+
+### 3. Architecture & Tech Stack
+- **Frontend Canvas Engine**: TypeScript 5.5, Vite 5.4, dynamic SVG bezier curve graph engine, California/Swiss editorial modernism layout.
+- **Epistemic Verification**: Multi-agent referee model enforcing Bonferroni/FWER adjustments, Shannon unicity bounds, and negative control foils.
+- **Physical Automation**: Opentrons OT-2 Python liquid handling API (2.14).
+- **Open Standards**: Aligned with OpenTelemetry AI semantic conventions and ELIXIR RO-Crate 1.1 specification.
 
 ---
 
@@ -27,11 +52,13 @@ Modern multi-agent architectures (AutoGPT, LangGraph, CrewAI) operate largely as
 - **Time-Travel Trajectory Scrubber**: Step forward, step backward, or auto-replay execution sequences to pinpoint the exact moment of hypothesis drift.
 - **Epistemic Gate Inspector**: Real-time evaluation of statistical bounds, negative control foils, and statistical significance before allowing physical or high-cost tool dispatch.
 - **Interactive Steering & Forking**: Inject prompt directives, add parameter bounds, or fork alternate trajectories directly from any intermediate node.
+- **Opentrons OT-2 Code Inspection**: Direct preview and export of validated laboratory robotics protocols.
+- **ELIXIR RO-Crate 1.1 Export**: 1-click generation of FAIR-compliant JSON-LD research object metadata packages.
 - **DuckDB-Compatible Schema**: Standard JSON event streaming schema ready for persistence and analytical queries.
 
 ---
 
-## Quickstart
+## Quickstart (Local Development)
 
 ### Prerequisites
 
